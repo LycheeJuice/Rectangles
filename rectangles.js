@@ -27,7 +27,6 @@
 
 	// creates the number of rectangles specified in the select.
 	function createRectangles() { 
-		document.getElementById("rectanglearea").innerHTML = ""; //clears box
 		var count = document.getElementById("count").value;
         let rectangle = document.createElement('div');
         let container = document.getElementById("rectanglearea");
@@ -35,30 +34,35 @@
         
         
         if (count == 1) {
-            
+            document.getElementById("rectanglearea").innerHTML = ""; //clears box
             //console.warn("1");
             container.appendChild(rectangle);
+            colorIt();
             
         } else if (count == 50) {
             //console.warn("50");
+            document.getElementById("rectanglearea").innerHTML = ""; //clears box
             for (let i = 0; i< 50; i++) {
                 //console.warn(i);
                 let rectangle = document.createElement('div');
                 rectangle.className = "rectangle";
                 container.appendChild(rectangle);
+                colorIt();
             }
             
-        } else {
+        } else if (count == 100) {
             //console.warn("1");
+            document.getElementById("rectanglearea").innerHTML = ""; //clears box
             for (let i = 0; i< 100; i++) {
                 //console.warn(i);
                 let rectangle = document.createElement('div');
                 rectangle.className = "rectangle";
                 container.appendChild(rectangle);
+                colorIt();
             }
             
         }
-        colorIt();
+        
 	}
         
 
@@ -72,7 +76,7 @@
             let r = Math.floor(Math.random() * 256);
             let g = Math.floor(Math.random() * 256);
             let b = Math.floor(Math.random() * 256);
-            rects[i].style.backgroundColor = "rgb("+r+","+g+","+b+")"; 
+            rects[i].style.backgroundColor = "rgba("+r+","+g+","+b+",0.7)"; 
             
         }
         
@@ -100,7 +104,69 @@
             rects[i].style.bottom = bottom+"px";
            
 		}
+        //drag ball
+        area.onmousedown = dragIt;
+        area.ondragstart = function() {
+            return false;
+        }
+        
+        
 	}
+    
+    function dragIt(event){
+        var area = document.getElementById("rectanglearea");
+        //get object based on mouse coordinates
+        var mouseX = event.clientX; 
+        var mouseY = event.clientY;
+        let movedObject = document.elementFromPoint(mouseX,mouseY);
+        //console.warn(mouseX + " " + mouseY);  
+        //console.warn(movedObject.className);
+        
+        var delObject = document.getElementById("count").value;
+       
+        //I can't figure out why the release is so strange
+        if (movedObject.className == "rectangle"){
+            
+            if(delObject == "Delete") {
+                movedObject.parentNode.removeChild(movedObject);
+                return;
+            }
+            
+            //console.warn("true");
+            let shiftX = event.clientX - movedObject.getBoundingClientRect().left;
+            let shiftY = event.clientY - movedObject.getBoundingClientRect().top;
+        
+            movedObject.style.position = 'absolute';
+            movedObject.style.zIndex = 1000;
+            document.body.append(movedObject);
+        
+            moveAt(event.pageX, event.pageY);
+        
+            function moveAt(pageX, pageY) {
+                movedObject.style.left = pageX - shiftX + 'px';
+                movedObject.style.top = pageY - shiftY + 'px';
+            }
+        
+            function onMouseMove(event) {
+            moveAt(event.pageX, event.pageY); 
+            }
+        
+            document.addEventListener('mousemove', onMouseMove);
+        
+            movedObject.onmouseup = function(){
+                document.removeEventListener('mousemove', onMouseMove);
+                area.append(movedObject);
+                movedObject.onmouseup = null;
+            
+            
+            }
+        }
+        
+        
+        
+            
+        
+    }
 
 
 
